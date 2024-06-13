@@ -18,8 +18,8 @@ class VectorField:
         self.ax.set_aspect('equal')
 
         self.X, self.Y = self.create_meshgrid(self.grid_size)
-        self.field_function_x = lambda X, Y: -Y  # Default function for x component
-        self.field_function_y = lambda X, Y: X   # Default function for y component
+        self.field_function_x = lambda X, Y: -np.cos(Y)  # Default function for x component
+        self.field_function_y = lambda X, Y: np.sin(X)   # Default function for y component
         self.U, self.V = self.calculate_field(self.X, self.Y, self.field_function_x, self.field_function_y)
         self.quiver = self.ax.quiver(self.X, self.Y, self.U, self.V, scale=50, width=0.0025)
 
@@ -87,7 +87,7 @@ class VectorField:
         return self.quiver, self.scatter
 
     def create_widgets(self):
-        # Create slider for grid size
+        # Create slider for particle count
         ax_slider = plt.axes([0.25, 0.1, 0.65, 0.03], facecolor='lightgoldenrodyellow')
         self.slider = Slider(ax_slider, 'Number of particles', 1, 100, valinit=self.particle_count, valstep=1)
         self.slider.on_changed(self.update_particle_number)
@@ -101,6 +101,10 @@ class VectorField:
         self.textbox_y = TextBox(ax_input_y, 'Function for y', initial=self.get_field_function_y_str())
         self.textbox_y.on_submit(self.update_field_function_y)
 
+    def update_particle_number(self, val):
+        self.particle_count = int(val)
+        # Add functionality to update particle count in your application
+
     def update_field_function_x(self, text):
         self.field_function_x = self.parse_field_function(text)
         self.update_grid_size(self.grid_size)
@@ -110,12 +114,17 @@ class VectorField:
         self.update_grid_size(self.grid_size)
 
     def parse_field_function(self, text):
+        allowed_names = {k: getattr(np, k) for k in dir(np) if not k.startswith("__")}
+        allowed_names.update({'X': None, 'Y': None})  # Add X and Y as allowed names
         try:
-            func = eval("lambda X, Y: " + text)
+            # Replace X and Y with dummy variables for validation
+            eval(text, {"__builtins__": {}}, allowed_names)
+            func = eval(f"lambda X, Y: {text}", {"__builtins__": {}}, allowed_names)
             return func
         except Exception as e:
             print(f"Error: {e}. Please enter a valid mathematical expression.")
             return None
+
 
     def get_field_function_x_str(self):
         return self.get_field_function_str(self.field_function_x)
@@ -124,14 +133,7 @@ class VectorField:
         return self.get_field_function_str(self.field_function_y)
 
     def get_field_function_str(self, func):
-        func_str = str(func)
-        print(f"Function string: {func_str}")  # Debug print
-        if 'lambda' in func_str:
-            try:
-                return func_str.split('lambda ')[1].split(': ')[1]
-            except IndexError:
-                return ''
-        return ''
+        return str(func) if func else ""
 
     def update_grid_size(self, val):
         self.grid_size = int(self.slider.val)
@@ -186,6 +188,7 @@ class VectorField:
 
 # Example usage
 if __name__ == "__main__":
-    vector_field_animation = VectorField(xlim=(-10, 10), ylim=(-10, 10), initial_grid_size=20, initial_particle_count=40)
+    vector_field_animation = VectorField(xlim=(-10, 10), ylim=(-10, 10), initial_grid_size=20, initial_particle_count=2000)
     vector_field_animation.animate()
+
 
