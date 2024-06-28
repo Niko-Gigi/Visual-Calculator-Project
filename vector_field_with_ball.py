@@ -53,4 +53,12 @@ def update_ball(frame):
 
 anim = FuncAnimation(fig, update_ball, frames=100, interval=100)
 
+# I'm experimenting with labels. I tried using mplcursors, but it was slow and complex.
+
+# Annotate the point at position xy with label at position xytext
+a = -3
+b = 5
+annot = ax.annotate(f"{vector_field(a,b)[0]}, {vector_field(a,b)[1]}", xy=(a,b), xytext=(a+2,b+2), arrowprops=dict(arrowstyle="->"), bbox=dict(boxstyle="round", fc="w"))
+# annot.set_visible(False)
+
 plt.show()
