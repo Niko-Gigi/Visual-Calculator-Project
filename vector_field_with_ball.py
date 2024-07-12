@@ -15,14 +15,21 @@ ax.set_ylim(-10, 10)
 
 # Define the vector field lol
 def vector_field(X, Y):
-    U = (-Y - X)
-    V = (X - Y)
+    U = -X - Y
+    V = X - Y
     return U, V # U and V are the x and y components of the vector arrows
 
 # Create an initial quiver (vector) plot
 U, V = vector_field(X, Y)
 quiver = ax.quiver(X, Y, U, V) # creates an arrow with x component U and y component V with its tail at position X, Y
 
+dU_dx, dU_dy = np.gradient(U, x, axis=0), np.gradient(U, y, axis=1)
+dV_dx, dV_dy = np.gradient(V, x, axis=0), np.gradient(V, y, axis=1)
+divergence = dU_dx + dV_dy
+
+
+
+# ANIMATION
 # Set timestep
 dt = 0.1
 
@@ -54,6 +61,9 @@ def update_ball(frame):
 # Create the animation
 anim = FuncAnimation(fig, update_ball, frames=100, interval=100)
 
+
+
+# LABELS
 # I'm experimenting with labels. I tried using mplcursors, but it was slow and complex. This approach below seems to work pretty well
 
 # Annotate the point at position xy with label at position xy+xytext (if it didn't have textcoords="offset points" then label would be fixed at position xytext)
@@ -67,9 +77,10 @@ def update_annot(i, j):
     y_pos = Y[i, j]
     u = U[i, j]
     v = V[i, j]
+    div = divergence[i, j]
     # Then plug in these values for "" and xy into the annot variable from above
     annot.xy = (x_pos, y_pos)
-    text = f"({x_pos:.2f}, {y_pos:.2f})\nU={u:.2f}, V={v:.2f}"
+    text = f"({x_pos:.2f}, {y_pos:.2f})\nU={u:.2f}, V={v:.2f}\nDiv={div:.2f}"
     annot.set_text(text)
     # Set box colour
     annot.get_bbox_patch().set_facecolor('white')
