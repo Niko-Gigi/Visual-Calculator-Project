@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Calculus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Vector Calculus</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('numerical_methods') }}">Numerical Methods</a></li>
+                <li><a href="{{ url_for('linear_algebra') }}">Linear Algebra</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Vector Field Visualization</h2>
+        <img src="{{ url_for('vector_calculus') }}" alt="Vector Field Visualization">
+    </main>
+</body>
+</html>

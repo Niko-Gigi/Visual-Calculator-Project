@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathVis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to MathVis!</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('vector_calculus') }}">Vector Calculus</a></li>
+                <li><a href="{{ url_for('numerical_methods') }}">Numerical Methods</a></li>
+                <li><a href="{{ url_for('linear_algebra') }}">Linear Algebra</a></li>
+                <li><a href="{{ url_for('ode') }}">ODE Visualizations</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Welcome</h2>
+        <p>Select a section from the navigation menu to view different types of mathematical visualizations.</p>
+    </main>
+</body>
+</html>
+
+
+
