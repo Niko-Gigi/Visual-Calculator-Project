@@ -18,8 +18,40 @@
         </nav>
     </header>
     <main>
-        <h2>Secant Method Visualization</h2>
-        <img src="{{ url_for('numerical_methods') }}" alt="Secant Method Visualization">
+        <h2>Numerical Methods Visualization</h2>
+        <form method="post" action="{{ url_for('numerical_methods') }}">
+            <label for="method">Choose a method:</label>
+            <select id="method" name="method">
+                <option value="newton">Newton-Raphson</option>
+                <option value="secant">Secant</option>
+                <option value="bisection">Bisection</option>
+            </select><br><br>
+
+            <label for="function">Enter a function f(x):</label>
+            <input type="text" id="function" name="function" required><br><br>
+
+            <label for="iterations">Enter number of iterations:</label>
+            <input type="number" id="iterations" name="iterations" min="1" max="120" required><br><br>
+
+            <label for="lower_bound">Enter lower bound:</label>
+            <input type="number" step="any" id="lower_bound" name="lower_bound" required><br><br>
+
+            <label for="upper_bound">Enter upper bound:</label>
+            <input type="number" step="any" id="upper_bound" name="upper_bound" required><br><br>
+
+            <label for="guess_1">Enter first guess:</label>
+            <input type="number" step="any" id="guess_1" name="guess_1" required><br><br>
+
+            <label for="guess_2">Enter second guess (for Secant/Bisection):</label>
+            <input type="number" step="any" id="guess_2" name="guess_2"><br><br>
+
+            <input type="submit" value="Run">
+        </form>
+        
+        {% if plot_url %}
+        <h3>Root Finding Process Visualization:</h3>
+        <img src="{{ plot_url }}" alt="Numerical Method Visualization">
+        {% endif %}
     </main>
 </body>
 </html>

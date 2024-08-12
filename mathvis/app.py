@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, send_file, request
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sym
@@ -7,6 +7,8 @@ import io
 import math
 from scipy.optimize import fsolve, minimize
 from scipy.integrate import solve_ivp
+import base64
+from PIL import Image, ImageDraw
 
 app = Flask(__name__)
 
@@ -101,38 +103,88 @@ def vector_calculus():
     img.seek(0)
     return send_file(img, mimetype='image/png')
 
-@app.route('/numerical_methods')
+@app.route('/numerical_methods', methods=['GET', 'POST'])
 def numerical_methods():
-    # Example: Secant method visualization
-    def secant_method(f, x0, x1, tol=1e-5, max_iter=100):
-        for i in range(max_iter):
-            f0, f1 = f(x0), f(x1)
-            if abs(f1 - f0) < tol:
-                raise ValueError("Division by zero in secant method.")
-            x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
-            if abs(x2 - x1) < tol:
-                return x2
-            x0, x1 = x1, x2
-        raise ValueError("Secant method did not converge.")
+    if request.method == 'POST':
+        method = request.form['method']
+        func = request.form['function']
+        iterations = int(request.form['iterations'])
+        lower_bound = float(request.form['lower_bound'])
+        upper_bound = float(request.form['upper_bound'])
+        guess_1 = float(request.form['guess_1'])
+        guess_2 = float(request.form.get('guess_2', 0))
+        x = sym.symbols('x')
+        fx = sym.sympify(func)
 
-    f = lambda x: x**3 - x - 2
-    x0, x1 = 1.0, 2.0
-    root = secant_method(f, x0, x1)
+        if method == 'newton':
+            img = newton_raphson(fx, iterations, x, guess_1)
+        elif method == 'secant':
+            img = secant(fx, iterations, x, guess_1, guess_2)
+        elif method == 'bisection':
+            img = bisection(fx, iterations, x, lower_bound, upper_bound, guess_1, guess_2)
 
-    x = np.linspace(0, 2, 400)
-    y = f(x)
+        return render_template('numerical_methods.html', plot_url=img)
 
-    fig, ax = plt.subplots()
-    ax.plot(x, y, label='f(x)')
-    ax.axhline(0, color='black',linewidth=0.5)
-    ax.axvline(root, color='r', linestyle='--', label=f'Root: {root:.2f}')
-    ax.legend()
+    return render_template('numerical_methods.html')
 
-    # Save plot to a BytesIO object and return as a response
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    return send_file(img, mimetype='image/png')
+def newton_raphson(fx, iterations, x, xi):
+    fx_der = sym.diff(fx, x)
+    img = plot_iterations(x, fx, fx_der, xi, iterations, 'Newton-Raphson')
+    return img
+
+def secant(fx, iterations, x, x_first, x_second):
+    img = plot_iterations(x, fx, None, x_first, iterations, 'Secant', x_second=x_second)
+    return img
+
+def bisection(fx, iterations, x, xl, xu, guess_1, guess_2):
+    img = plot_iterations(x, fx, None, guess_1, iterations, 'Bisection', xl=xl, xu=xu)
+    return img
+
+def plot_iterations(x, fx, fx_der, xi, iterations, method_name, x_second=None, xl=None, xu=None):
+    frames = []
+    x_vals = np.linspace(-10, 10, 400)
+    y_vals = [fx.evalf(subs={x: val}) for val in x_vals]
+
+    for i in range(min(iterations, 120)):
+        plt.figure(figsize=(8, 6))
+        plt.plot(x_vals, y_vals, label='f(x)')
+        
+        if method_name == 'Newton-Raphson':
+            tangent = fx_der.evalf(subs={x: xi})
+            xi_old = xi
+            xi = xi - fx.evalf(subs={x: xi}) / tangent
+            plt.plot([xi_old, xi], [fx.evalf(subs={x: xi_old}), 0], 'ro-')
+        elif method_name == 'Secant':
+            tmp = x_second - fx.evalf(subs={x: x_second}) * (xi - x_second) / (fx.evalf(subs={x: xi}) - fx.evalf(subs={x: x_second}))
+            plt.plot([xi, tmp], [fx.evalf(subs={x: xi}), 0], 'go-')
+            xi = x_second
+            x_second = tmp
+        elif method_name == 'Bisection':
+            xi_old = xi
+            xi = (xl + xu) / 2
+            plt.plot([xi_old, xi], [fx.evalf(subs={x: xi_old}), 0], 'bo-')
+            if fx.evalf(subs={x: xi}) * fx.evalf(subs={x: xl}) < 0:
+                xu = xi
+            else:
+                xl = xi
+
+        plt.axhline(0, color='black', linewidth=0.5)
+        plt.axvline(0, color='black', linewidth=0.5)
+        plt.title(f'{method_name} Method Iteration {i+1}')
+        plt.legend()
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        frames.append(Image.open(buf))
+        plt.close()
+
+    gif_buf = io.BytesIO()
+    frames[0].save(gif_buf, format='GIF', save_all=True, append_images=frames[1:], duration=500, loop=0)
+    gif_buf.seek(0)
+    img = base64.b64encode(gif_buf.getvalue()).decode('utf8')
+
+    return f'data:image/gif;base64,{img}'
 
 @app.route('/linear_algebra')
 def linear_algebra():
