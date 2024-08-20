@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vector Field Visualizer</title>
+    <script src="/static/script.js" defer></script>
+</head>
+<body>
+    <h1>Vector Field Visualizer</h1>
+    <form id="vector-form">
+        <label for="u-field">U(x, y):</label>
+        <input type="text" id="u-field" name="u-field" required><br><br>
+        <label for="v-field">V(x, y):</label>
+        <input type="text" id="v-field" name="v-field" required><br><br>
+        <button type="button" id="update-button">Update Visualizations</button>
+    </form>
+    <div>
+        <h2>Vector Field</h2>
+        <img id="vector-field" src="" alt="Vector Field" />
+    </div>
+    <div>
+        <h2>Particle Animation</h2>
+        <img id="particle-animation" src="" alt="Particle Animation" />
+    </div>
+</body>
+</html>
