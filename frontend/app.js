@@ -12,6 +12,9 @@ export default function App() {
         <TabsList>
           <TabsTrigger value="linear-algebra">Linear Algebra</TabsTrigger>
           <TabsTrigger value="numerical-methods">Numerical Methods</TabsTrigger>
+          <TabsTrigger value="ode-methods">Ordinary Differential Equations</TabsTrigger>
+          <TabsTrigger value="vector-calculus">Vector Calculus</TabsTrigger>
+          <TabsTrigger value="pde-methods">Partial Differential Equations</TabsTrigger>
         </TabsList>
 
         <TabsContent value="linear-algebra">
@@ -19,6 +22,18 @@ export default function App() {
         </TabsContent>
 
         <TabsContent value="numerical-methods">
+          <NumericalMethods />
+        </TabsContent>
+
+        <TabsContent value="ode-methods">
+          <NumericalMethods />
+        </TabsContent>
+
+        <TabsContent value="vector-calculus">
+          <NumericalMethods />
+        </TabsContent>
+
+        <TabsContent value="pde-methods">
           <NumericalMethods />
         </TabsContent>
       </Tabs>
