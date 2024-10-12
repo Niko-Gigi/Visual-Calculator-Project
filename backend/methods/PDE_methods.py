@@ -1,64 +1,33 @@
-#PDE Methods
+from flask import Flask, request, jsonify
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
-# wave speed
-c = 1
+app = Flask(__name__)
 
-# spatial domain
-xmin = 0
-xmax = 1
+def simulate_wave_equation(c, n, num_steps=500):
+    xmin, xmax = 0, 1
+    X, dx = np.linspace(xmin, xmax, n, retstep=True)
+    dt = 0.1 * dx / c
 
-n = 50 # num of grid points
+    def initial_u(x):
+        return np.exp(-0.5 * np.power(((x - 0.5) / 0.08), 2))
 
-# x grid of n points
-X, dx = np.linspace(xmin,xmax,n,retstep=True)
+    U = [initial_u(X)]
 
-# for CFL of 0.1
-dt = 0.1*dx/c
+    for t in range(1, num_steps):
+        u_prev = U[-1]
+        u_new = np.zeros_like(u_prev)
 
-# initial conditions
-def initial_u(x):
-    return np.exp(-0.5*np.power(((x-0.5)/0.08), 2))
+        for j in range(n):
+            if j == 0:
+                u_new[j] = u_prev[j] + c * dt / (2 * dx) * (u_prev[j + 1] - u_prev[-1])
+            elif j == n - 1:
+                u_new[j] = u_prev[j] + c * dt / (2 * dx) * (u_prev[0] - u_prev[j - 1])
+            else:
+                u_new[j] = u_prev[j] + c * dt / (2 * dx) * (u_prev[j + 1] - u_prev[j - 1])
 
-# each value of the U array contains the solution for all x values at each timestep
-U = []
+        U.append(u_new)
 
-# explicit euler solution
-def u(x, t):
-    if t == 0: # initial condition
-        return initial_u(x)
-    uvals = [] # u values for this time step
-    for j in range(len(x)):
-        if j == 0: # left boundary
-            uvals.append(U[t-1][j] + c*dt/(2*dx)*(U[t-1][j+1]-U[t-1][n-1]))
-        elif j == n-1: # right boundary
-            uvals.append(U[t-1][j] + c*dt/(2*dx)*(U[t-1][0]-U[t-1][j-1]))
-        else:
-            uvals.append(U[t-1][j] + c*dt/(2*dx)*(U[t-1][j+1]-U[t-1][j-1]))
-    return uvals
-
-# solve for 500 time steps
-for t in range(500):
-    U.append(u(X, t))
-
-# plot solution
-plt.style.use('dark_background')
-fig = plt.figure()
-ax1 = fig.add_subplot(1,1,1)
-
-# animate the time data
-k = 0
-def animate(i):
-    global k
-    x = U[k]
-    k += 1
-    ax1.clear()
-    plt.plot(X,x,color='cyan')
-    plt.grid(True)
-    plt.ylim([-2,2])
-    plt.xlim([0,1])
-
-anim = animation.FuncAnimation(fig,animate,frames=360,interval=20)
-plt.show()
+    return [
+        [{"x": float(X[i]), "u": float(U[t][i])} for i in range(n)]
+        for t in range(num_steps)
+    ]

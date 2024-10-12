@@ -2,6 +2,10 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import LinearAlgebra from './components/LinearAlgebra';
 import NumericalMethods from './components/NumericalMethods';
+import NumericalMethods from './components/NumericalMethods';
+import NumericalMethods from './components/NumericalMethods';
+import NumericalMethods from './components/NumericalMethods';
+
 
 export default function App() {
   return (

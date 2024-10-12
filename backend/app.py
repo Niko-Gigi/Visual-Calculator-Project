@@ -42,5 +42,16 @@ def handle_bisection():
         'plot_points': plot_points
     })
 
+
+
+@app.route('/api/simulate', methods=['POST'])
+def run_simulation():
+    data = request.json
+    wave_speed = data.get('waveSpeed', 1)
+    grid_points = data.get('gridPoints', 50)
+
+    simulation_data = simulate_wave_equation(wave_speed, grid_points)
+    return jsonify(simulation_data)
+
 if __name__ == '__main__':
     app.run(debug=True)
